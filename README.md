@@ -16,10 +16,22 @@ There is two ways to get a result:
 
 ### From a JSON
 
-Call this endpoint and add the file content in the request body
+Call this endpoint and add the file content as a list of string in the request body
 
 ```http request 
 POST http://localhost:8080/json
+```
+
+#### Exemple:
+```JSON
+[
+  "C - 3 - 4",
+  "M - 1 - 0",
+  "M - 2 - 1",
+  "T - 0 - 3 - 2",
+  "T - 1 - 3 - 3",
+  "A - Lara - 1 - 1 - S - AADADAGGA"
+]
 ```
 
 ### From a file
