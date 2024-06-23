@@ -1,18 +1,11 @@
 package fr.schouvey.william.treasuremap.web.mapper;
 
-import fr.schouvey.william.treasuremap.domain.Adventurer;
-import fr.schouvey.william.treasuremap.domain.Mountain;
-import fr.schouvey.william.treasuremap.domain.MovementEnum;
-import fr.schouvey.william.treasuremap.domain.OrientationEnum;
-import fr.schouvey.william.treasuremap.domain.Treasure;
-import fr.schouvey.william.treasuremap.domain.WorldMap;
+import fr.schouvey.william.treasuremap.domain.*;
+import fr.schouvey.william.treasuremap.domain.actions.Movement;
 import fr.schouvey.william.treasuremap.exception.InvalidInputException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class TreasureMapWebMapper {
 
@@ -25,45 +18,52 @@ public class TreasureMapWebMapper {
 
     private TreasureMapWebMapper() {}
 
-    public static Map<Adventurer, List<MovementEnum>> mapToAdventurers(List<String> treasureMapLines) {
-        Map<Adventurer, List<MovementEnum>> adventurersMap = new java.util.HashMap<>(Map.of());
+    public static Map<Adventurer, List<Movement>> mapToAdventurers(List<String> treasureMapLines) {
+        Map<Adventurer, List<Movement>> adventurersMap = new HashMap<>(Map.of());
         treasureMapLines.stream()
                 .filter(line -> !line.isEmpty())
                 .forEach(line -> {
                     if (line.startsWith(ADVENTURER)) {
-                        var adventurerEntry = mapToAdventurer(line);
-                        adventurersMap.put(adventurerEntry.getKey(), adventurerEntry.getValue());
+                        var lineElements = line.split(SEPARATOR);
+                        var adventurer = mapToAdventurer(lineElements);
+                        var movementSequence = mapToMovementSequence(lineElements);
+                        adventurersMap.put(adventurer, movementSequence);
                     }
                 });
         return adventurersMap;
     }
 
-    private static Map.Entry<Adventurer, List<MovementEnum>> mapToAdventurer(String line) {
-        Adventurer adventurer = new Adventurer();
-        List<MovementEnum> movementSequence;
-        var lineElements = line.split(SEPARATOR);
+    private static Adventurer mapToAdventurer(String[] lineElements) {
+        OrientationEnum orientation;
+        String name;
+        int positionX;
+        int positionY;
         try {
-            adventurer.setName(lineElements[1]);
-            adventurer.setPositionX(Integer.valueOf(lineElements[2]));
-            adventurer.setPositionY(Integer.valueOf(lineElements[3]));
-            adventurer.setOrientation(OrientationEnum.getOrientationByCode(lineElements[4]));
-            movementSequence = new ArrayList<>(mapToMovementSequence(lineElements[5]));
+            name = lineElements[1];
+            positionX = Integer.parseInt(lineElements[2]);
+            positionY = Integer.parseInt(lineElements[3]);
+            orientation = OrientationEnum.getOrientationByCode(lineElements[4]);
         } catch (RuntimeException e) {
-            throw new InvalidInputException(line, e);
+            throw new InvalidInputException(Arrays.toString(lineElements), e);
         }
-        return Map.entry(adventurer, movementSequence);
+        return new Adventurer(name, orientation, positionX, positionY);
     }
 
-    private static List<MovementEnum> mapToMovementSequence(String line) {
-        return Arrays.stream(line.split(""))
-                .map(MovementEnum::getMovementByCode)
-                .toList();
+    private static List<Movement> mapToMovementSequence(String[] lineElements) {
+        var movementSequenceCharacters = lineElements[5];
+        try {
+            return Arrays.stream(movementSequenceCharacters.split(""))
+                    .map(MovementEnum::getMovementByCode)
+                    .toList();
+        } catch (RuntimeException e) {
+            throw new InvalidInputException(Arrays.toString(lineElements), e);
+        }
     }
 
     public static WorldMap mapToWorldMap(List<String> treasureMapLines) {
-        WorldMap worldMap = new WorldMap();
         List<Mountain> mountains = new ArrayList<>();
         List<Treasure> treasures = new ArrayList<>();
+        AtomicReference<WorldMap.Size> size = new AtomicReference<>();
 
         treasureMapLines.stream()
                 .filter(line -> !line.isEmpty())
@@ -74,38 +74,39 @@ public class TreasureMapWebMapper {
                     else if (line.startsWith(TREASURE)) {
                         treasures.add(mapToTreasure(line));
                     } else if (line.startsWith(MAP)) {
-                        worldMap.setSize(mapToMapSize(line));
+                        size.set(mapToMapSize(line));
                     }
                 });
 
-        worldMap.setMountains(mountains);
-        worldMap.setTreasures(treasures);
-        return worldMap;
+        return new WorldMap(size.get(), mountains, treasures);
     }
 
     private static Mountain mapToMountain(String line) {
-        var mountain = new Mountain();
         var lineElements = line.split(SEPARATOR);
+        int positionX;
+        int positionY;
         try {
-            mountain.setPositionX(Integer.valueOf(lineElements[1]));
-            mountain.setPositionY(Integer.valueOf(lineElements[2]));
+            positionX = Integer.parseInt(lineElements[1]);
+            positionY = Integer.parseInt(lineElements[2]);
         } catch (RuntimeException e) {
             throw new InvalidInputException(line, e);
         }
-        return mountain;
+        return new Mountain(positionX, positionY);
     }
 
     private static Treasure mapToTreasure(String line) {
-        var treasure = new Treasure();
         var lineElements = line.split(SEPARATOR);
+        int positionX;
+        int positionY;
+        int number;
         try {
-            treasure.setPositionX(Integer.valueOf(lineElements[1]));
-            treasure.setPositionY(Integer.valueOf(lineElements[2]));
-            treasure.setNumber(Integer.valueOf(lineElements[3]));
+            positionX = Integer.parseInt(lineElements[1]);
+            positionY = Integer.parseInt(lineElements[2]);
+            number = Integer.parseInt(lineElements[3]);
         } catch (RuntimeException e) {
             throw new InvalidInputException(line, e);
         }
-        return treasure;
+        return new Treasure(number, positionX, positionY);
     }
 
     private static WorldMap.Size mapToMapSize(String line) {

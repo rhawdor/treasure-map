@@ -6,7 +6,6 @@ import fr.schouvey.william.treasuremap.domain.OrientationEnum;
 import fr.schouvey.william.treasuremap.domain.Treasure;
 import fr.schouvey.william.treasuremap.domain.WorldMap;
 import fr.schouvey.william.treasuremap.exception.InvalidInputException;
-import fr.schouvey.william.treasuremap.exception.InvalidOrientationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,11 +42,11 @@ class TreasureMapWebMapperTests {
             MAP_SIZE.toString(),
             MAP_SIZE.toString());
 
-    private static final Integer MOUTAIN_POSITION = 3;
+    private static final Integer MOUNTAIN_POSITION = 3;
     private static final String MOUNTAIN_LINE = String.join(SEPARATOR,
             "M",
-            MOUTAIN_POSITION.toString(),
-            MOUTAIN_POSITION.toString());
+            MOUNTAIN_POSITION.toString(),
+            MOUNTAIN_POSITION.toString());
 
     private static final Integer TREASURE_POSITION = 2;
     private static final Integer TREASURE_NUMBER = 1;
@@ -64,21 +63,10 @@ class TreasureMapWebMapperTests {
 
     @BeforeEach
     void setUp() {
-        var treasure = new Treasure().setNumber(TREASURE_NUMBER);
-        treasure.setPositionX(TREASURE_POSITION);
-        treasure.setPositionY(TREASURE_POSITION);
-        var mountain = new Mountain();
-        mountain.setPositionX(MOUTAIN_POSITION);
-        mountain.setPositionY(MOUTAIN_POSITION);
-        worldMap = new WorldMap()
-                .setSize(WorldMap.Size.of(MAP_SIZE, MAP_SIZE))
-                .setMountains(List.of(mountain))
-                .setTreasures(List.of(treasure));
-        adventurer = new Adventurer()
-                .setName(NAME)
-                .setOrientation(ADVENTURER_ORIENTATION);
-        adventurer.setPositionX(ADVENTURER_POSITION_X);
-        adventurer.setPositionY(ADVENTURER_POSITION_Y);
+        var treasure = new Treasure(TREASURE_NUMBER, TREASURE_POSITION, TREASURE_POSITION);
+        var mountain = new Mountain(MOUNTAIN_POSITION, MOUNTAIN_POSITION);
+        worldMap = new WorldMap(WorldMap.Size.of(MAP_SIZE, MAP_SIZE), List.of(mountain), List.of(treasure));
+        adventurer = new Adventurer(NAME, ADVENTURER_ORIENTATION, ADVENTURER_POSITION_X, ADVENTURER_POSITION_Y);
     }
 
     @Test
@@ -96,7 +84,7 @@ class TreasureMapWebMapperTests {
     }
 
     @Test
-    void mapToAdventurers_withInvalidInput_throwsException() {
+    void mapToAdventurers_withInvalidFormat_throwsException() {
         assertThrows(InvalidInputException.class, () -> TreasureMapWebMapper.mapToAdventurers(List.of("A - Lara - iNvAlId")));
     }
 

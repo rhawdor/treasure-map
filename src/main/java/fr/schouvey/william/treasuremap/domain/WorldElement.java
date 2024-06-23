@@ -6,22 +6,17 @@ public abstract class WorldElement {
 
     private Integer positionY;
 
+    public WorldElement(Integer positionX, Integer positionY) {
+        this.positionX = positionX;
+        this.positionY = positionY;
+    }
+
     public Integer getPositionX() {
         return positionX;
     }
 
-    public WorldElement setPositionX(Integer positionX) {
-        this.positionX = positionX;
-        return this;
-    }
-
     public Integer getPositionY() {
         return positionY;
-    }
-
-    public WorldElement setPositionY(Integer positionY) {
-        this.positionY = positionY;
-        return this;
     }
 
     public boolean isPositionMatching(WorldElement worldElement) {
@@ -30,5 +25,10 @@ public abstract class WorldElement {
 
     public boolean isPositionMatching(Integer positionX, Integer positionY) {
         return this.positionX.equals(positionX) && this.positionY.equals(positionY);
+    }
+
+    protected void moveTo(Integer positionX, Integer positionY) {
+        this.positionX = positionX;
+        this.positionY = positionY;
     }
 }

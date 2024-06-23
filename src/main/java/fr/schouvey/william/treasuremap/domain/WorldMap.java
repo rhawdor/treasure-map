@@ -10,6 +10,12 @@ public class WorldMap {
 
     private List<Treasure> treasures;
 
+    public WorldMap(Size size, List<Mountain> mountains, List<Treasure> treasures) {
+        this.size = size;
+        this.mountains = mountains;
+        this.treasures = treasures;
+    }
+
     public Size getSize() {
         return size;
     }

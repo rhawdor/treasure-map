@@ -1,11 +1,10 @@
 package fr.schouvey.william.treasuremap.service;
 
-import fr.schouvey.william.treasuremap.domain.Adventurer;
-import fr.schouvey.william.treasuremap.domain.Mountain;
-import fr.schouvey.william.treasuremap.domain.MovementEnum;
-import fr.schouvey.william.treasuremap.domain.OrientationEnum;
-import fr.schouvey.william.treasuremap.domain.Treasure;
-import fr.schouvey.william.treasuremap.domain.WorldMap;
+import fr.schouvey.william.treasuremap.domain.*;
+import fr.schouvey.william.treasuremap.domain.actions.MoveForward;
+import fr.schouvey.william.treasuremap.domain.actions.Movement;
+import fr.schouvey.william.treasuremap.domain.actions.TurnLeft;
+import fr.schouvey.william.treasuremap.domain.actions.TurnRight;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,55 +17,39 @@ class TreasureMapServiceTests {
 
     private WorldMap worldMap;
     private Adventurer adventurer;
-    private List<MovementEnum> movementSequence;
+    private List<Movement> movementSequence;
 
     @BeforeEach
     void setUp() {
-        var treasure1 = new Treasure().setNumber(2);
-        treasure1.setPositionX(0);
-        treasure1.setPositionY(3);
+        var treasure1 = new Treasure(2, 0, 3);
 
-        var treasure2 = new Treasure().setNumber(3);
-        treasure2.setPositionX(1);
-        treasure2.setPositionY(3);
+        var treasure2 = new Treasure(3, 1, 3);
 
-        var mountain1 = new Mountain();
-        mountain1.setPositionX(1);
-        mountain1.setPositionY(0);
+        var mountain1 = new Mountain(1, 0);
 
-        var mountain2 = new Mountain();
-        mountain2.setPositionX(2);
-        mountain2.setPositionY(1);
+        var mountain2 = new Mountain(2, 1);
 
-        adventurer = new Adventurer()
-                .setName("Lara")
-                .setOrientation(OrientationEnum.SOUTH);
-        adventurer.setPositionX(1);
-        adventurer.setPositionY(1);
+        adventurer = new Adventurer("Lara", OrientationEnum.SOUTH, 1, 1);
 
-        movementSequence = List.of(MovementEnum.MOVE_FORWARD,
-                MovementEnum.MOVE_FORWARD,
-                MovementEnum.TURN_RIGHT,
-                MovementEnum.MOVE_FORWARD,
-                MovementEnum.TURN_RIGHT,
-                MovementEnum.MOVE_FORWARD,
-                MovementEnum.TURN_LEFT,
-                MovementEnum.TURN_LEFT,
-                MovementEnum.MOVE_FORWARD
+        movementSequence = List.of(new MoveForward(),
+                new MoveForward(),
+                new TurnRight(),
+                new MoveForward(),
+                new TurnRight(),
+                new MoveForward(),
+                new TurnLeft(),
+                new TurnLeft(),
+                new MoveForward()
         );
 
-        worldMap = new WorldMap()
-                .setSize(WorldMap.Size.of(3, 4))
-                .setTreasures(List.of(treasure1, treasure2))
-                .setMountains(List.of(mountain1, mountain2));
-
+        worldMap = new WorldMap(WorldMap.Size.of(3, 4), List.of(mountain1, mountain2), List.of(treasure1, treasure2));
     }
 
     @Test
     void processTreasureMap_withValidParams_returnGame() {
         var result = TreasureMapService.processTreasureMap(worldMap, Map.of(adventurer, movementSequence));
-        assertThat(result.getAdventurers().stream().findFirst().isPresent()).isTrue();
-        var adventurerResult = result.getAdventurers().stream().findFirst().get();
+        assertThat(result.adventurers().stream().findFirst().isPresent()).isTrue();
+        var adventurerResult = result.adventurers().stream().findFirst().get();
         assertThat(adventurerResult.getTreasureNumber()).isEqualTo(3);
         assertThat(adventurerResult.getOrientation()).isEqualTo(OrientationEnum.SOUTH);
         assertThat(adventurerResult.getPositionX()).isZero();

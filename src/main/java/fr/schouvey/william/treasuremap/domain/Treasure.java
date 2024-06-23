@@ -4,13 +4,13 @@ public class Treasure extends WorldElement {
 
     private Integer number;
 
-    public Integer getNumber() {
-        return number;
+    public Treasure(Integer number, Integer positionX, Integer positionY) {
+        super(positionX, positionY);
+        this.number = number;
     }
 
-    public Treasure setNumber(Integer number) {
-        this.number = number;
-        return this;
+    public Integer getNumber() {
+        return number;
     }
 
     public boolean acquireTreasure() {

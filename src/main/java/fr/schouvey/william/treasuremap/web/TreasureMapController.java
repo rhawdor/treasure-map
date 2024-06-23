@@ -28,7 +28,7 @@ public class TreasureMapController {
     public List<String> processTreasureMapFromJSON(@RequestBody List<String> treasureMapLines) {
         var game = TreasureMapService.processTreasureMap(TreasureMapWebMapper.mapToWorldMap(treasureMapLines),
                 TreasureMapWebMapper.mapToAdventurers(treasureMapLines));
-        return TreasureMapWebMapper.mapToString(game.getWorldMap(), game.getAdventurers());
+        return TreasureMapWebMapper.mapToString(game.worldMap(), game.adventurers());
     }
 
     @PostMapping("/file")
@@ -37,7 +37,7 @@ public class TreasureMapController {
         var treasureMapLines = FileWebMapper.mapFileToListString(multipartFile);
         var game = TreasureMapService.processTreasureMap(TreasureMapWebMapper.mapToWorldMap(treasureMapLines),
                 TreasureMapWebMapper.mapToAdventurers(treasureMapLines));
-        var file = FileWebMapper.mapListStringToFile(TreasureMapWebMapper.mapToString(game.getWorldMap(), game.getAdventurers()));
+        var file = FileWebMapper.mapListStringToFile(TreasureMapWebMapper.mapToString(game.worldMap(), game.adventurers()));
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_PLAIN)

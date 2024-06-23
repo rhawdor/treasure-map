@@ -5,59 +5,45 @@ import io.vavr.Tuple;
 
 public class Adventurer extends WorldElement {
 
-    private String name;
+    private final String name;
 
     private Integer treasureNumber = 0;
 
     private OrientationEnum orientation;
 
-    public String getName() {
-        return name;
+    public Adventurer(String name, OrientationEnum orientation, Integer positionX, Integer positionY) {
+        super(positionX, positionY);
+        this.name = name;
+        this.orientation = orientation;
     }
 
-    public Adventurer setName(String name) {
-        this.name = name;
-        return this;
+    public String getName() {
+        return name;
     }
 
     public Integer getTreasureNumber() {
         return treasureNumber;
     }
 
-    public Adventurer setTreasureNumber(Integer treasureNumber) {
-        this.treasureNumber = treasureNumber;
-        return this;
-    }
-
-    public Adventurer acquireTreasure() {
+    public void acquireTreasure() {
         this.treasureNumber += 1;
-        return this;
     }
 
     public OrientationEnum getOrientation() {
         return orientation;
     }
 
-    public Adventurer setOrientation(OrientationEnum orientation) {
-        this.orientation = orientation;
-        return this;
-    }
-
-    public Adventurer turnRight() {
+    public void turnRight() {
         this.orientation = this.orientation.getRight();
-        return this;
     }
 
-    public Adventurer turnLeft() {
+    public void turnLeft() {
         this.orientation = this.orientation.getLeft();
-        return this;
     }
 
-    public Adventurer moveForward() {
+    public void moveForward() {
         var positionTuple = PositionHelper.getNewPositionFromOrientation(orientation, Tuple.of(getPositionX(), getPositionY()));
-        this.setPositionX(positionTuple._1);
-        this.setPositionY(positionTuple._2);
-        return this;
+        this.moveTo(positionTuple._1, positionTuple._2);
     }
 
 }
